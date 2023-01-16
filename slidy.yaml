@@ -1,0 +1,43 @@
+slidy: '1'
+variables:
+  customMessage: "Complete"    # Gets  ${Local.var.customMessage}
+
+scripts:
+  # runner build
+  runner:
+    name: "Runner"
+    description: "Execute build_runner"
+    run: flutter pub run build_runner watch --delete-conflicting-outputs
+
+  # Simple command (slidy run doctor)
+  doctor: flutter doctor
+
+  # Descritive command (slidy run clean)
+  clean:
+    name: "Clean"
+    description: 'minha descricao'
+    run: flutter clean
+
+  # Steped command (slidy run cleanup)
+  cleanup:
+    description: "cleanup project"
+    steps:
+      - name: "Clean"
+        run: flutter clean
+
+      - name: "GetPackages"
+        description: "Get packages"
+        run: flutter pub get
+
+      - name: "PodClean"
+        description: "Execute pod clean"
+        shell: bash   # default: command. options (command|bash|sh|zsh|pwsh)
+        condition: "${System.operatingSystem} == macos"
+        working-directory: ios
+        run: |-
+          rm Podfile.lock
+          pod deintegrate
+          pod update
+          pod install
+
+      - run: echo ${Local.var.customMessage}
