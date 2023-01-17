@@ -4,7 +4,7 @@ import 'package:send2you/app/modules/login/login_store.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
-import '../../shared/models/UserModel.dart';
+import '../../shared/models/user_model.dart';
 
 class LoginPage extends StatefulWidget {
   final String title;

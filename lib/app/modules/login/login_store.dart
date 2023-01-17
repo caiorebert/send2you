@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
 import 'package:mobx/mobx.dart';
 import 'package:send2you/app/shared/config/config.dart';
-import 'package:send2you/app/shared/models/UserModel.dart';
+import 'package:send2you/app/shared/models/user_model.dart';
 
 part './login_store.g.dart';
 

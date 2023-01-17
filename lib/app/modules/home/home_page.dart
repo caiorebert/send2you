@@ -5,8 +5,8 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:mobx/mobx.dart';
-import 'package:send2you/app/shared/models/PublicacaoModel.dart';
-import '../../shared/models/UserModel.dart';
+import 'package:send2you/app/shared/models/publicacaoModel.dart';
+import '../../shared/models/user_model.dart';
 import 'home_store.dart';
 
 class HomePage extends StatefulWidget {
@@ -54,7 +54,7 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           children: [
             Container(
-              height: MediaQuery.of(context).size.height * 0.13,
+              height: MediaQuery.of(context).size.height * 0.15,
               color: Colors.white,
               padding: EdgeInsets.all(10),
               child: Column(
@@ -131,7 +131,21 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
       ),
-      Text("aaaaa")
+      Container(
+        width: MediaQuery.of(context).size.width,
+        height: MediaQuery.of(context).size.height,
+        child: Column(
+          children: [
+            Container(
+              height: 50,
+              alignment: Alignment.center,
+              width: MediaQuery.of(context).size.width,
+              color: Colors.red,
+              child: Text("LISTA DE USUÁRIOS"),
+            )
+          ]
+        ),
+      )
     ];
     return Scaffold(
         appBar: AppBar(

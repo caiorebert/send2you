@@ -3,15 +3,13 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
 import 'package:send2you/app/shared/config/config.dart';
-import 'package:send2you/app/shared/models/PublicacaoModel.dart';
+import 'package:send2you/app/shared/models/publicacaoModel.dart';
 
 part 'home_store.g.dart';
 
 class HomeStore = HomeStoreBase with _$HomeStore;
 
 abstract class HomeStoreBase with Store {
-  @observable
-  int counter = 0;
 
   @observable
   ObservableList<Widget> items = ObservableList<Widget>();
@@ -100,11 +98,4 @@ abstract class HomeStoreBase with Store {
     return widget;
   }
 
-  void newPub(){
-
-  }
-
-  Future<void> increment() async {
-    counter = counter + 1;
-  }
 }

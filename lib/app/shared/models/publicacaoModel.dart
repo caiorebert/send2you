@@ -7,19 +7,19 @@ class PublicacaoModel {
     this.id,
     this.nomeUser,
     this.legenda,
-    this.created_at,
+    this.createdAt,
   });
 
   late int? id;
   late String? nomeUser;
   late String? legenda;
-  late DateTime? created_at;
+  late DateTime? createdAt;
 
   factory PublicacaoModel.fromJson(Map<String, dynamic> json) => PublicacaoModel(
       id: json['id'],
       nomeUser: json['nomeuser'],
       legenda: json['legenda'],
-      created_at: DateTime.parse(json['created_at']),
+      createdAt: DateTime.parse(json['created_at']),
   );
   
   Future<bool> save() async {
@@ -36,6 +36,6 @@ class PublicacaoModel {
   }
 
   String getDate(){
-    return "${created_at?.day}/${created_at?.month}/${created_at?.year}";
+    return "${createdAt?.day}/${createdAt?.month}/${createdAt?.year}";
   }
 }
