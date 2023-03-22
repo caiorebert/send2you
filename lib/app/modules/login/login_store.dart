@@ -4,8 +4,10 @@ import 'package:dio/dio.dart';
 import 'package:mobx/mobx.dart';
 import 'package:send2you/app/shared/config/config.dart';
 import 'package:send2you/app/shared/models/user_model.dart';
+import 'package:send2you/app/shared/routes/routes.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-part './login_store.g.dart';
+part 'login_store.g.dart';
 
 class LoginStore = _LoginStoreBase with _$LoginStore;
 abstract class _LoginStoreBase with Store {
@@ -18,21 +20,39 @@ abstract class _LoginStoreBase with Store {
     });
   }
 
-  Future<bool> logar(String _login, String _password) async {
-    await Future.delayed(Duration(seconds: 10));
+  Future<bool> logar(String login, String password, bool rememberMe) async {
+    await Future.delayed(const Duration(seconds: 10));
     Response response;
     Dio dio = Dio();
-    response = await dio.post('${Config.url}/login',
+    response = await dio.post('${Config.url}${Routes.routes['user']!['login']}',
         data: {
-          "login": _login,
-          "password": _password
+          "login": login,
+          "password": password
         }
     );
     if (response.statusCode==200) {
       user = UserModel(id: response.data['id'], login: response.data['login'], nome: response.data['nome'], logged: true);
+      final prefs = await SharedPreferences.getInstance();
+
+      if (rememberMe) {
+        await prefs.setString("login", login);
+        await prefs.setString("password", password);
+      } else {
+        final bool success = await prefs.remove("login");
+        if (success) {
+          await prefs.remove("password");
+        }
+      }
       return true;
     } else if (response.statusCode==204) {
       return false;
+    }
+    return false;
+  }
+
+  Future<bool> prepareLogin(String login, String password, bool rememberMe) async {
+    if (await logar(login, password, rememberMe)) {
+      toHome(context);
     }
     return false;
   }

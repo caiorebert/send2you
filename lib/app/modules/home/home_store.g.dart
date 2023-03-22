@@ -24,12 +24,35 @@ mixin _$HomeStore on HomeStoreBase, Store {
     });
   }
 
+  late final _$usersAtom = Atom(name: 'HomeStoreBase.users', context: context);
+
+  @override
+  ObservableList<Widget> get users {
+    _$usersAtom.reportRead();
+    return super.users;
+  }
+
+  @override
+  set users(ObservableList<Widget> value) {
+    _$usersAtom.reportWrite(value, super.users, () {
+      super.users = value;
+    });
+  }
+
   late final _$listItemsAsyncAction =
       AsyncAction('HomeStoreBase.listItems', context: context);
 
   @override
   Future<void> listItems(dynamic context) {
     return _$listItemsAsyncAction.run(() => super.listItems(context));
+  }
+
+  late final _$listUsersAsyncAction =
+      AsyncAction('HomeStoreBase.listUsers', context: context);
+
+  @override
+  Future<void> listUsers(dynamic context) {
+    return _$listUsersAsyncAction.run(() => super.listUsers(context));
   }
 
   late final _$HomeStoreBaseActionController =
@@ -47,9 +70,21 @@ mixin _$HomeStore on HomeStoreBase, Store {
   }
 
   @override
+  void setUsers(ObservableList<Widget> list) {
+    final _$actionInfo = _$HomeStoreBaseActionController.startAction(
+        name: 'HomeStoreBase.setUsers');
+    try {
+      return super.setUsers(list);
+    } finally {
+      _$HomeStoreBaseActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   String toString() {
     return '''
-items: ${items}
+items: ${items},
+users: ${users}
     ''';
   }
 }

@@ -3,8 +3,8 @@ import 'package:flutter_modular/flutter_modular.dart';
 import 'package:send2you/app/modules/login/login_store.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-
-import '../../shared/models/user_model.dart';
+import 'package:send2you/presentation/eyes_icons.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatefulWidget {
   final String title;
@@ -19,14 +19,21 @@ class LoginPageState extends State<LoginPage> {
 
   late final LoginStore store;
 
-  late bool iniciado = false;
-
+  late bool started = false;
   late bool _isLoading = false;
+  late bool _passwordHidden = true;
+  late bool _rememberMe = false;
 
   @override
   void initState() {
     super.initState();
     store = Modular.get<LoginStore>();
+  }
+
+  void revealPassword(){
+    setState(() {
+      _passwordHidden = !_passwordHidden;
+    });
   }
 
   @override
@@ -39,25 +46,25 @@ class LoginPageState extends State<LoginPage> {
             color: Colors.black12,
             child: Column(
               children: <Widget>[
-                Container(
+                SizedBox(
                     width: MediaQuery.of(context).size.width,
                     height: MediaQuery.of(context).size.height * 0.10),
-                Container(
+                SizedBox(
                   width: MediaQuery.of(context).size.width,
                   height: MediaQuery.of(context).size.height * 0.20,
                   child: Column(
                     children: [
                       Container(
-                        margin: EdgeInsets.fromLTRB(0, 0, 0, 0),
-                        child: Icon(
+                        margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                        child: const Icon(
                           Icons.mode_comment_sharp,
                           size: 100,
                           color: Colors.blueGrey,
                         ),
                       ),
                       Container(
-                          margin: EdgeInsets.fromLTRB(0, 20, 0, 0),
-                          child: Text(
+                          margin: const EdgeInsets.fromLTRB(0, 20, 0, 0),
+                          child: const Text(
                             "Send2You",
                             style: TextStyle(fontSize: 40),
                           ))
@@ -65,14 +72,14 @@ class LoginPageState extends State<LoginPage> {
                   ),
                 ),
                 Container(
-                  padding: EdgeInsets.fromLTRB(0, 20, 0, 20),
+                  padding: const EdgeInsets.fromLTRB(0, 20, 0, 20),
                   child: const Text(
                     "LOGIN",
                     style: TextStyle(fontSize: 20),
                   ),
                 ),
                 Container(
-                    margin: EdgeInsets.fromLTRB(0, 0, 0, 10),
+                    margin: const EdgeInsets.fromLTRB(0, 0, 0, 10),
                     height: 80,
                     alignment: Alignment.center,
                     width: MediaQuery.of(context).size.width,
@@ -87,7 +94,7 @@ class LoginPageState extends State<LoginPage> {
                             child: const Icon(Icons.perm_identity_outlined)),
                         Container(
                           width: MediaQuery.of(context).size.width * 0.60,
-                          padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
+                          padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                           height: 60,
                           alignment: Alignment.center,
                           child: TextFormField(
@@ -96,12 +103,12 @@ class LoginPageState extends State<LoginPage> {
                             },
                             controller: _controllerTxtLogin,
                             decoration: const InputDecoration(hintText: "Login"),
-                            style: TextStyle(fontSize: 20),
+                            style: const TextStyle(fontSize: 20),
                           ),
                         ),
                       ],
                     )),
-                Container(
+                SizedBox(
                     height: 80,
                     width: MediaQuery.of(context).size.width,
                     child: Row(
@@ -115,35 +122,58 @@ class LoginPageState extends State<LoginPage> {
                             child: const Icon(Icons.lock)),
                         Container(
                           width: MediaQuery.of(context).size.width * 0.60,
-                          padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
+                          padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                           height: 60,
                           alignment: Alignment.center,
                           child: TextFormField(
                             controller: _controllerTxtSenha,
-                            obscureText: true,
+                            obscureText: _passwordHidden,
                             decoration: const InputDecoration(hintText: "Senha"),
                             style: const TextStyle(fontSize: 20),
                           ),
                         ),
+                        GestureDetector(
+                          onTap: revealPassword,
+                          child: (_passwordHidden) ? const Icon(Eyes.eye) : const Icon(Eyes.eye_off),
+                        )
                       ],
                     )),
+                Container(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text("Manter conectado"),
+                      Checkbox(
+                        value: _rememberMe,
+                        onChanged: (bool? value) {
+                          setState(() {
+                            _rememberMe = !_rememberMe;
+                          });
+                        },
+                      )
+                    ]
+                  ),
+                ),
                 Container(
                   height: 80,
                   alignment: Alignment.center,
                   child: Directionality(
                     textDirection: TextDirection.rtl,
                     child: ElevatedButton.icon(
-                      onPressed: () async {
+                      onPressed: (!_isLoading) ? () async {
                         FocusScope.of(context).unfocus();
-                        String login = _controllerTxtLogin.text.toString().trim();
+                        String login = _controllerTxtLogin.text.toString().trim().toLowerCase();
                         String password =
-                            _controllerTxtSenha.text.toString().trim();
+                            _controllerTxtSenha.text.toString().trim().toLowerCase();
                         if (login.isNotEmpty && password.isNotEmpty) {
                           setState(() {
                             _isLoading = true;
                           });
-                          if (await store.logar(login, password)) {
-                            store.toHome(context);
+                          if (!(await store.prepareLogin(login, password, _rememberMe))) {
+                            Fluttertoast.showToast(
+                                msg: "Usuário ou senha incorretos!",
+                                toastLength: Toast.LENGTH_SHORT
+                            );
                           }
                           setState(() {
                             _isLoading = false;
@@ -154,13 +184,16 @@ class LoginPageState extends State<LoginPage> {
                             toastLength: Toast.LENGTH_SHORT
                           );
                         }
-                      },
+                      } : () => Fluttertoast.showToast(
+                          msg: "Aguarde, por favor...",
+                          toastLength: Toast.LENGTH_SHORT
+                      ),
                       label: Container(
-                        padding: EdgeInsets.all(20),
-                        child: const Text(
+                        padding: const EdgeInsets.all(20),
+                        child: (!_isLoading) ? const Text(
                           "ENTRAR",
                           style: TextStyle(fontSize: 20),
-                        ),
+                        ) : const Text("AGUARDE", style: TextStyle(fontSize: 20),),
                       ),
                       icon: _isLoading
                           ? const SizedBox(

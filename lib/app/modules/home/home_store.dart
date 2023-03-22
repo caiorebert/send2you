@@ -3,7 +3,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
 import 'package:send2you/app/shared/config/config.dart';
-import 'package:send2you/app/shared/models/publicacaoModel.dart';
+import 'package:send2you/app/shared/elements/home/item_list_users.dart';
+import 'package:send2you/app/shared/models/publicacao_model.dart';
+import 'package:send2you/app/shared/models/user_model.dart';
+import 'package:send2you/app/shared/routes/routes.dart';
 
 part 'home_store.g.dart';
 
@@ -14,9 +17,19 @@ abstract class HomeStoreBase with Store {
   @observable
   ObservableList<Widget> items = ObservableList<Widget>();
 
+  @observable
+  ObservableList<Widget> users = ObservableList<Widget>();
+
+  //List<Widget> users = List.generate(30, (index) => Container(color: Colors.green, height: 50, child: Text("User ${index}"),));
+  
   @action
   void setItems(ObservableList<Widget> list) {
     items = list;
+  }
+
+  @action
+  void setUsers(ObservableList<Widget> list) {
+    users = list;
   }
 
   @action
@@ -38,6 +51,32 @@ abstract class HomeStoreBase with Store {
     }
   }
 
+  @action
+  Future<void> listUsers(context) async {
+    List<UserModel> list = [];
+    ObservableList<Widget> listPlace = ObservableList<Widget>();
+    Dio dio = Dio();
+    try {
+      Response response = await dio.get("${Config.url}${Routes.routes['user']!['get_users']}");
+      list = (response.data as List).map((item) { return UserModel.fromJson(item);}).toList();
+      for(var obj in list) {
+        listPlace.add(
+            ItemListUsers(
+                obj.nome.toString(),
+                "https://i.pinimg.com/originals/29/47/9b/29479ba0435741580ca9f4a467be6207.png",
+                obj.logged,
+                context
+            ).widget
+        );
+      }
+      setUsers(listPlace);
+    } catch(e) {
+      if (kDebugMode) {
+        print(e);
+      }
+    }
+  }
+
   Widget createWidget(context, PublicacaoModel model) {
     Widget widget =
     Container(
@@ -46,8 +85,8 @@ abstract class HomeStoreBase with Store {
           borderRadius: BorderRadius.circular(5),
           boxShadow: [
             BoxShadow(
-                color: Colors.grey.withOpacity(0.5),
-                offset: Offset(0, 3),
+                color: Colors.grey.withOpacity(0.3),
+                offset: const Offset(0, 2),
                 blurRadius: 7,
                 spreadRadius: 5
             )

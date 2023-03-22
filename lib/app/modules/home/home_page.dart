@@ -5,14 +5,14 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:mobx/mobx.dart';
-import 'package:send2you/app/shared/models/publicacaoModel.dart';
+import 'package:send2you/app/shared/models/publicacao_model.dart';
 import '../../shared/models/user_model.dart';
 import 'home_store.dart';
 
 class HomePage extends StatefulWidget {
   final String title;
-  final UserModel user;
-  const HomePage({Key? key, this.title = 'Home', required UserModel this.user}) : super(key: key);
+  final UserModel? user;
+  const HomePage({Key? key, this.title = 'Home', this.user}) : super(key: key);
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -38,13 +38,14 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    print(widget.user);
-    var timer = Timer.periodic(
+    Timer.periodic(
         const Duration(seconds: 2000), (Timer t) => store.listItems(context));
-    TextEditingController _controllerEdtPub = TextEditingController();
+    TextEditingController controllerEdtPub = TextEditingController();
     if (store.items.isEmpty) {
-      store.items = ObservableList<Widget>();
-      store.listItems(context);
+      //store.items = ObservableList<Widget>();
+      store.users = ObservableList<Widget>();
+      //store.listItems(context);
+      store.listUsers(context);
     }
     List<Widget> widgetOptions = [
       Container(
@@ -54,15 +55,14 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           children: [
             Container(
-              height: MediaQuery.of(context).size.height * 0.15,
               color: Colors.white,
-              padding: EdgeInsets.all(10),
+              padding: const EdgeInsets.all(10),
               child: Column(
                 children: [
                   Container(
                     padding: const EdgeInsets.all(15),
                     child: TextFormField(
-                      controller: _controllerEdtPub,
+                      controller: controllerEdtPub,
                       decoration: const InputDecoration.collapsed(
                           hintText: "Escreva o que pensa..."),
                     ),
@@ -71,10 +71,10 @@ class _HomePageState extends State<HomePage> {
                       onPressed: () async {
                         FocusScope.of(context).unfocus();
                         PublicacaoModel obj = PublicacaoModel();
-                        obj.nomeUser = widget.user.nome;
-                        obj.legenda = _controllerEdtPub.text.toString();
-                        _controllerEdtPub.text = "";
-                        _controllerEdtPub.clear();
+                        obj.nomeUser = widget.user?.nome;
+                        obj.legenda = controllerEdtPub.text.toString();
+                        controllerEdtPub.text = "";
+                        controllerEdtPub.clear();
                         if (await obj.save()) {
                           store.listItems(context);
                         }
@@ -132,16 +132,30 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
       Container(
+        height: MediaQuery.of(context).size.height * 0.84,
         width: MediaQuery.of(context).size.width,
-        height: MediaQuery.of(context).size.height,
         child: Column(
           children: [
             Container(
               height: 50,
               alignment: Alignment.center,
               width: MediaQuery.of(context).size.width,
-              color: Colors.red,
-              child: Text("LISTA DE USUÁRIOS"),
+              color: Colors.white24,
+              child: const Text("LISTA DE USUÁRIOS"),
+            ),
+            Container(
+              height: MediaQuery.of(context).size.height * 0.77,
+              width: MediaQuery.of(context).size.width,
+              child: Observer(
+                builder: (_) => ListView.builder(
+                  itemCount: store.users.length,
+                  itemBuilder: (_, index) {
+                    return Container(
+                      child: store.users[index]
+                    );
+                  },
+                ),
+              ),
             )
           ]
         ),
