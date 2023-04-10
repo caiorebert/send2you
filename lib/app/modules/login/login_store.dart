@@ -20,20 +20,33 @@ abstract class _LoginStoreBase with Store {
     });
   }
 
-  Future<bool> logar(String login, String password, bool rememberMe) async {
-    await Future.delayed(const Duration(seconds: 10));
-    Response response;
-    Dio dio = Dio();
-    response = await dio.post('${Config.url}${Routes.routes['user']!['login']}',
-        data: {
-          "login": login,
-          "password": password
-        }
+  Future<Response> logar(String login, String password, bool rememberMe) async {
+    await Future.delayed(const Duration(seconds: 3));
+    Response response = Response(
+      requestOptions: RequestOptions(path: ""),
+      statusCode: 400
     );
+    BaseOptions options = BaseOptions(
+      baseUrl: Config.url,
+      connectTimeout: 3 * 1000
+    );
+    Dio dio = Dio(options);
+    try {
+      response = await dio.post('${Routes.routes['user']!['login']}',
+          data: {
+            "login": login,
+            "password": password
+          }
+      );
+    } on DioError catch (ex) {
+      if (ex.type == DioErrorType.connectTimeout) {
+        throw Exception("Connection timeout exception");
+      }
+      throw ex.response?.data['message'];
+    }
     if (response.statusCode==200) {
       user = UserModel(id: response.data['id'], login: response.data['login'], nome: response.data['nome'], logged: true);
       final prefs = await SharedPreferences.getInstance();
-
       if (rememberMe) {
         await prefs.setString("login", login);
         await prefs.setString("password", password);
@@ -43,17 +56,15 @@ abstract class _LoginStoreBase with Store {
           await prefs.remove("password");
         }
       }
-      return true;
-    } else if (response.statusCode==204) {
-      return false;
     }
-    return false;
+    return response;
   }
 
-  Future<bool> prepareLogin(String login, String password, bool rememberMe) async {
-    if (await logar(login, password, rememberMe)) {
+  Future<Response> prepareLogin(String login, String password, bool rememberMe, BuildContext context) async {
+    Response response = await logar(login, password, rememberMe);
+    if (response.statusCode==200) {
       toHome(context);
     }
-    return false;
+    return response;
   }
 }

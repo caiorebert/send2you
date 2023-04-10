@@ -15,10 +15,16 @@ class HomeStore = HomeStoreBase with _$HomeStore;
 abstract class HomeStoreBase with Store {
 
   @observable
+  UserModel user = UserModel(logged: true);
+
+  @observable
   ObservableList<Widget> items = ObservableList<Widget>();
 
   @observable
   ObservableList<Widget> users = ObservableList<Widget>();
+
+  @observable
+  ObservableList<UserModel> objUsers = ObservableList<UserModel>();
 
   //List<Widget> users = List.generate(30, (index) => Container(color: Colors.green, height: 50, child: Text("User ${index}"),));
   
@@ -30,6 +36,11 @@ abstract class HomeStoreBase with Store {
   @action
   void setUsers(ObservableList<Widget> list) {
     users = list;
+  }
+
+  @action
+  void setObjUserList(ObservableList<UserModel> objList) {
+    objUsers = objList;
   }
 
   @action
@@ -55,11 +66,17 @@ abstract class HomeStoreBase with Store {
   Future<void> listUsers(context) async {
     List<UserModel> list = [];
     ObservableList<Widget> listPlace = ObservableList<Widget>();
+    ObservableList<UserModel> listObjUser = ObservableList<UserModel>();
     Dio dio = Dio();
     try {
-      Response response = await dio.get("${Config.url}${Routes.routes['user']!['get_users']}");
+      Response response = await dio.post("${Config.url}${Routes.routes['user']!['get_users']}",
+        data : {
+          'idUser': user.id
+        }
+      );
       list = (response.data as List).map((item) { return UserModel.fromJson(item);}).toList();
       for(var obj in list) {
+        listObjUser.add(obj);
         listPlace.add(
             ItemListUsers(
                 obj.nome.toString(),
@@ -69,6 +86,7 @@ abstract class HomeStoreBase with Store {
             ).widget
         );
       }
+      setObjUserList(listObjUser);
       setUsers(listPlace);
     } catch(e) {
       if (kDebugMode) {

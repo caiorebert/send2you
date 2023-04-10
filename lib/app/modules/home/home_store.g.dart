@@ -9,6 +9,21 @@ part of 'home_store.dart';
 // ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic, no_leading_underscores_for_local_identifiers
 
 mixin _$HomeStore on HomeStoreBase, Store {
+  late final _$userAtom = Atom(name: 'HomeStoreBase.user', context: context);
+
+  @override
+  UserModel get user {
+    _$userAtom.reportRead();
+    return super.user;
+  }
+
+  @override
+  set user(UserModel value) {
+    _$userAtom.reportWrite(value, super.user, () {
+      super.user = value;
+    });
+  }
+
   late final _$itemsAtom = Atom(name: 'HomeStoreBase.items', context: context);
 
   @override
@@ -36,6 +51,22 @@ mixin _$HomeStore on HomeStoreBase, Store {
   set users(ObservableList<Widget> value) {
     _$usersAtom.reportWrite(value, super.users, () {
       super.users = value;
+    });
+  }
+
+  late final _$objUsersAtom =
+      Atom(name: 'HomeStoreBase.objUsers', context: context);
+
+  @override
+  ObservableList<UserModel> get objUsers {
+    _$objUsersAtom.reportRead();
+    return super.objUsers;
+  }
+
+  @override
+  set objUsers(ObservableList<UserModel> value) {
+    _$objUsersAtom.reportWrite(value, super.objUsers, () {
+      super.objUsers = value;
     });
   }
 
@@ -81,10 +112,23 @@ mixin _$HomeStore on HomeStoreBase, Store {
   }
 
   @override
+  void setObjUserList(ObservableList<UserModel> objList) {
+    final _$actionInfo = _$HomeStoreBaseActionController.startAction(
+        name: 'HomeStoreBase.setObjUserList');
+    try {
+      return super.setObjUserList(objList);
+    } finally {
+      _$HomeStoreBaseActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   String toString() {
     return '''
+user: ${user},
 items: ${items},
-users: ${users}
+users: ${users},
+objUsers: ${objUsers}
     ''';
   }
 }

@@ -1,10 +1,14 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:send2you/app/shared/config/config.dart';
+import 'package:socket_io_client/socket_io_client.dart';
 import 'splash_store.dart';
+// import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class SplashPage extends StatefulWidget {
   final String title;
@@ -21,11 +25,11 @@ class _SplashPageState extends State<SplashPage> {
   void initState() {
     super.initState();
     store = Modular.get<SplashStore>();
-    store.verifyCredentials(context);
   }
 
   @override
   Widget build(BuildContext context) {
+    store.verifyCredentials(context);
     return Scaffold(
         body: Container(
           color: Colors.blueGrey,
@@ -34,7 +38,10 @@ class _SplashPageState extends State<SplashPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
-                  width: MediaQuery.of(context).size.width,
+                  width: MediaQuery
+                      .of(context)
+                      .size
+                      .width,
                   alignment: Alignment.center,
                   child: Column(
                     children: [
@@ -49,12 +56,13 @@ class _SplashPageState extends State<SplashPage> {
                       ),
                       Container(
                         margin: const EdgeInsets.fromLTRB(0, 25, 0, 0),
-                        child: const SpinKitPulse(size: 50, color: Colors.white,),
+                        child: const SpinKitPulse(
+                          size: 50, color: Colors.white,),
                       )
                     ],
                   ))
             ],
           ),
-    ));
+        ));
   }
 }

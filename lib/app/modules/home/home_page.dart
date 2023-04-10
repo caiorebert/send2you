@@ -7,6 +7,8 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:mobx/mobx.dart';
 import 'package:send2you/app/shared/models/publicacao_model.dart';
 import '../../shared/models/user_model.dart';
+import 'package:socket_io_client/socket_io_client.dart';
+import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'home_store.dart';
 
 class HomePage extends StatefulWidget {
@@ -28,6 +30,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     store = Modular.get<HomeStore>();
+    store.user = widget.user!;
   }
 
   void _onItemTapped(int index) {
@@ -41,12 +44,10 @@ class _HomePageState extends State<HomePage> {
     Timer.periodic(
         const Duration(seconds: 2000), (Timer t) => store.listItems(context));
     TextEditingController controllerEdtPub = TextEditingController();
-    if (store.items.isEmpty) {
-      //store.items = ObservableList<Widget>();
-      store.users = ObservableList<Widget>();
-      //store.listItems(context);
-      store.listUsers(context);
-    }
+    store.items = ObservableList<Widget>();
+    store.users = ObservableList<Widget>();
+    store.listItems(context);
+    store.listUsers(context);
     List<Widget> widgetOptions = [
       Container(
         color: Colors.white,
@@ -150,8 +151,18 @@ class _HomePageState extends State<HomePage> {
                 builder: (_) => ListView.builder(
                   itemCount: store.users.length,
                   itemBuilder: (_, index) {
-                    return Container(
-                      child: store.users[index]
+                    return Observer(
+                      builder: (_) {
+                        return GestureDetector(
+                          onTap: () => {
+                            Navigator.pushReplacementNamed(context, '/conversa/', arguments: {
+                              'user': widget.user,
+                              'user_destinatario': store.objUsers[index]
+                            })
+                          },
+                          child: store.users[index],
+                        );
+                      },
                     );
                   },
                 ),

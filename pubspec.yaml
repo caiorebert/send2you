@@ -43,6 +43,7 @@ dependencies:
   dio: ^4.0.6
   fluttertoast: ^8.1.2
   shared_preferences: ^2.0.17
+  socket_io_client: ^2.0.1
 
 dev_dependencies:
   flutter_spinkit: ^5.1.0
@@ -78,7 +79,7 @@ flutter:
 
 
 scripts:
-  mobx: flutter pub run build_runner watch --delete-conflicting-outputs
+  runner: flutter pub run build_runner watch --delete-conflicting-outputs
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg

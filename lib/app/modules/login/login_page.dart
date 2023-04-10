@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:send2you/app/modules/login/login_store.dart';
@@ -58,7 +59,7 @@ class LoginPageState extends State<LoginPage> {
                         margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
                         child: const Icon(
                           Icons.mode_comment_sharp,
-                          size: 100,
+                          size: 50,
                           color: Colors.blueGrey,
                         ),
                       ),
@@ -169,9 +170,12 @@ class LoginPageState extends State<LoginPage> {
                           setState(() {
                             _isLoading = true;
                           });
-                          if (!(await store.prepareLogin(login, password, _rememberMe))) {
+                          Response response = Response(requestOptions: RequestOptions(path: ""), statusCode: 400);
+                          try {
+                             response = await store.prepareLogin(login, password, _rememberMe, context);
+                          } catch (e) {
                             Fluttertoast.showToast(
-                                msg: "Usuário ou senha incorretos!",
+                                msg: e.toString(),
                                 toastLength: Toast.LENGTH_SHORT
                             );
                           }
@@ -209,6 +213,14 @@ class LoginPageState extends State<LoginPage> {
                     ),
                   ),
                 ),
+                Container(
+                  child: InkWell(
+                    child: const Text("Não possui login? Clique aqui para se cadastrar"),
+                    onTap: () => {
+                      Navigator.pushReplacementNamed(context, '/cadastro/')
+                    },
+                  )
+                )
               ],
             ),
         ),

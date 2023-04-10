@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
 import 'package:mobx/mobx.dart';
@@ -18,11 +19,23 @@ abstract class SplashStoreBase with Store {
     final SharedPreferences _prefs = await SharedPreferences.getInstance();
     final login = _prefs.getString("login");
     final password = _prefs.getString("password");
-    if (await loginStore.logar(
-        login!, password!, (login.isNotEmpty && password.isNotEmpty))) {
-        Navigator.pushReplacementNamed(context, "/home/", arguments: {
-          'user' : loginStore.user
-        });
+    if (login != null) {
+      if (password != null) {
+        Response response = Response(requestOptions: RequestOptions(path: ""), statusCode: 400);
+        try {
+           response = await loginStore.logar(
+              login, password, (login.isNotEmpty && password.isNotEmpty));
+        } catch (e) {
+          Navigator.pushReplacementNamed(context, "/login/");
+        }
+        if (response.statusCode==200) {
+          Navigator.pushReplacementNamed(context, "/home/", arguments: {
+            'user' : loginStore.user
+          });
+        }
+      } else {
+        Navigator.pushReplacementNamed(context, "/login/");
+      }
     } else {
       Navigator.pushReplacementNamed(context, "/login/");
     }
