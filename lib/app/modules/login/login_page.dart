@@ -60,7 +60,7 @@ class LoginPageState extends State<LoginPage> {
                         child: const Icon(
                           Icons.mode_comment_sharp,
                           size: 50,
-                          color: Colors.blueGrey,
+                          color: Colors.deepPurple,
                         ),
                       ),
                       Container(
@@ -214,8 +214,21 @@ class LoginPageState extends State<LoginPage> {
                   ),
                 ),
                 Container(
+                  width: MediaQuery.of(context).size.width * 0.60,
+                  padding: const EdgeInsets.all(15),
+                  margin: const EdgeInsets.fromLTRB(0, 30, 0, 0),
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.deepPurple.shade300, width: 2),
+                    borderRadius: const BorderRadius.all(Radius.circular(15))
+                  ),
                   child: InkWell(
-                    child: const Text("Não possui login? Clique aqui para se cadastrar"),
+                    child:
+                      const Text(
+                              "Não possui login?\nClique aqui para se cadastrar",
+                              style: TextStyle(fontSize: 14, color: Colors.deepPurple),
+                              textAlign: TextAlign.center,
+                            ),
                     onTap: () => {
                       Navigator.pushReplacementNamed(context, '/cadastro/')
                     },

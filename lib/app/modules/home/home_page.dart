@@ -21,7 +21,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-
   late final HomeStore store;
 
   int _selectedIndex = 0;
@@ -41,22 +40,24 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    Timer.periodic(
-        const Duration(seconds: 2000), (Timer t) => store.listItems(context));
     TextEditingController controllerEdtPub = TextEditingController();
-    store.items = ObservableList<Widget>();
-    store.users = ObservableList<Widget>();
-    store.listItems(context);
-    store.listUsers(context);
+    if (store.items.isEmpty && store.users.isEmpty) {
+      store.items = ObservableList<Widget>();
+      store.users = ObservableList<Widget>();
+      store.listItems(context);
+      store.listUsers(context);
+    }
     List<Widget> widgetOptions = [
       Container(
-        color: Colors.white,
+        height: double.infinity,
         alignment: Alignment.topLeft,
-        width: MediaQuery.of(context).size.width,
-        child: Column(
-          children: [
-            Container(
-              color: Colors.white,
+        width: double.infinity,
+        color: Colors.black87,
+        child: Column(children: [
+          Expanded(
+            child: Container(
+              height: double.infinity,
+              width: double.infinity,
               padding: const EdgeInsets.all(10),
               child: Column(
                 children: [
@@ -65,6 +66,7 @@ class _HomePageState extends State<HomePage> {
                     child: TextFormField(
                       controller: controllerEdtPub,
                       decoration: const InputDecoration.collapsed(
+                        hintStyle: TextStyle(color: Colors.white),
                           hintText: "Escreva o que pensa..."),
                     ),
                   ),
@@ -83,92 +85,101 @@ class _HomePageState extends State<HomePage> {
                       child: SizedBox(
                         width: MediaQuery.of(context).size.width,
                         child: const Text("PUBLICAR"),
-                      ))
+                      )),
+                  Container(
+                    height: MediaQuery.of(context).size.height * 0.05,
+                    padding: const EdgeInsets.all(10),
+                    alignment: Alignment.topLeft,
+                    child: const Text(
+                      "Atualizações recentes",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                      height: double.infinity,
+                      width: MediaQuery.of(context).size.width,
+                      child: RefreshIndicator(
+                        onRefresh: () {
+                          return Future.delayed(const Duration(seconds: 1), () {
+                            store.listItems(context);
+                          });
+                        },
+                        child: Observer(
+                          builder: (context) => (store.items.isEmpty)
+                              ? const SpinKitCircle(
+                                  color: Colors.blueAccent,
+                                  size: 50,
+                                )
+                              : Observer(
+                                  builder: (context) => ListView.builder(
+                                      itemCount: store.items.length,
+                                      itemBuilder: (_, index) {
+                                        return Container(
+                                          width:
+                                              MediaQuery.of(context).size.width,
+                                          child: Observer(
+                                              builder: (context) =>
+                                                  store.items[index]),
+                                        );
+                                      }),
+                                ),
+                        ),
+                      ),
+                    ),
+                  )
                 ],
               ),
             ),
-            Container(
-              height: MediaQuery.of(context).size.height * 0.05,
-              padding: const EdgeInsets.all(10),
-              alignment: Alignment.topLeft,
-              child: const Text(
-                "Atualizações recentes",
-                style: TextStyle(color: Colors.black26),
+          ),
+        ]),
+      ),
+      Container(
+        height: double.infinity,
+        color: Colors.black87,
+        width: MediaQuery.of(context).size.width,
+        child: Column(
+            children: [
+              Container(
+                height: 50,
+                alignment: Alignment.center,
+                color: Colors.black87.withOpacity(0.2),
+                width: MediaQuery.of(context).size.width,
+                child: const Text("LISTA DE USUÁRIOS", style: TextStyle(color: Colors.white),),
               ),
-            ),
-            Container(
-                padding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
-                color: Colors.white,
-                height: MediaQuery.of(context).size.height * 0.65,
+              Container(
+                height: MediaQuery.of(context).size.height * 0.77,
                 width: MediaQuery.of(context).size.width,
                 child: RefreshIndicator(
                   onRefresh: () {
-                    return Future.delayed(const Duration(seconds: 1), (){
-                      store.listItems(context);
+                    return Future.delayed(const Duration(seconds: 1), () => {
+                      store.listUsers(context)
                     });
                   },
                   child: Observer(
-                    builder: (context) => (store.items.isEmpty)
-                        ? const SpinKitCircle(
-                            color: Colors.blueAccent,
-                            size: 50,
-                          )
-                        : Observer(
-                            builder: (context) => ListView.builder(
-                                itemCount: store.items.length,
-                                itemBuilder: (_, index) {
-                                  return Container(
-                                    width: MediaQuery.of(context).size.width,
-                                    margin:
-                                        const EdgeInsets.fromLTRB(5, 10, 5, 15),
-                                    child: Observer(
-                                        builder: (context) =>
-                                            store.items[index]),
-                                  );
-                                }),
-                          ),
-                  ),
-                ))
-          ],
-        ),
-      ),
-      Container(
-        height: MediaQuery.of(context).size.height * 0.84,
-        width: MediaQuery.of(context).size.width,
-        child: Column(
-          children: [
-            Container(
-              height: 50,
-              alignment: Alignment.center,
-              width: MediaQuery.of(context).size.width,
-              color: Colors.white24,
-              child: const Text("LISTA DE USUÁRIOS"),
-            ),
-            Container(
-              height: MediaQuery.of(context).size.height * 0.77,
-              width: MediaQuery.of(context).size.width,
-              child: Observer(
-                builder: (_) => ListView.builder(
-                  itemCount: store.users.length,
-                  itemBuilder: (_, index) {
-                    return Observer(
-                      builder: (_) {
-                        return GestureDetector(
-                          onTap: () => {
-                            Navigator.pushReplacementNamed(context, '/conversa/', arguments: {
-                              'user': widget.user,
-                              'user_destinatario': store.objUsers[index]
-                            })
+                    builder: (_) => ListView.builder(
+                      itemCount: store.users.length,
+                      itemBuilder: (_, index) {
+                        return Observer(
+                          builder: (_) {
+                            return GestureDetector(
+                              onTap: () => {
+                                Navigator.pushReplacementNamed(context, '/conversa/', arguments: {
+                                  'user': widget.user,
+                                  'user_destinatario': store.objUsers[index]
+                                })
+                              },
+                              child: store.users[index],
+                            );
                           },
-                          child: store.users[index],
                         );
                       },
-                    );
-                  },
-                ),
-              ),
-            )
-          ]
+                    ),
+                  ),
+                )
+              )
+            ]
         ),
       )
     ];
@@ -176,18 +187,17 @@ class _HomePageState extends State<HomePage> {
         appBar: AppBar(
           title: const Text('Send2You'),
         ),
-        body: SingleChildScrollView(
-          child: Container(
-            width: MediaQuery.of(context).size.width,
-            alignment: Alignment.topLeft,
-            child: widgetOptions.elementAt(_selectedIndex),
-          ),
+        body: Container(
+          height: double.infinity,
+          width: double.infinity,
+          alignment: Alignment.topLeft,
+          child: widgetOptions.elementAt(_selectedIndex),
         ),
         bottomNavigationBar: Container(
           color: Colors.black,
           child: BottomNavigationBar(
             unselectedItemColor: Colors.white70,
-            backgroundColor: Colors.black,
+            backgroundColor: Colors.white24,
             items: const [
               BottomNavigationBarItem(
                 icon: Icon(Icons.home),

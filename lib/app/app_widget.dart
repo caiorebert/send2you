@@ -8,7 +8,7 @@ class AppWidget extends StatelessWidget {
     return MaterialApp.router(
       key: UniqueKey(),
       title: 'Flutter Slidy',
-      theme: ThemeData(primarySwatch: Colors.blueGrey),
+      theme: ThemeData(primarySwatch: Colors.deepPurple),
       debugShowCheckedModeBanner: false,
       routerDelegate: Modular.routerDelegate,
       routeInformationParser: Modular.routeInformationParser,

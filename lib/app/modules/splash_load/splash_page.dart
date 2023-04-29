@@ -32,7 +32,7 @@ class _SplashPageState extends State<SplashPage> {
     store.verifyCredentials(context);
     return Scaffold(
         body: Container(
-          color: Colors.blueGrey,
+          color: Colors.deepPurple,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,

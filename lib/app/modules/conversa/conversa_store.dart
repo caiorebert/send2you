@@ -13,11 +13,23 @@ class ConversaStore = ConversaStoreBase with _$ConversaStore;
 abstract class ConversaStoreBase with Store {
 
   @observable
+  Observable<bool> loading = Observable(false);
+
+  @observable
   ObservableList<MensagemModel> mensagens = ObservableList<MensagemModel>();
+
+  @observable
+  Observable<bool> firstLoading = Observable<bool>(true);
+
+  @action
+  void setLoading(bool val) {
+    firstLoading = Observable<bool>(val);
+  }
 
   @action
   void setMensagensList(ObservableList<MensagemModel> mensagens){
-    this.mensagens = mensagens;
+    this.mensagens.clear();
+    this.mensagens.addAll(mensagens);
   }
   @action
   void addMensagem(MensagemModel mensagem){
@@ -25,8 +37,8 @@ abstract class ConversaStoreBase with Store {
   }
 
   @action
-  Future<void> getAllMensagens(idRemetente, idDestinatario) async {
-    await Future.delayed(const Duration(seconds: 3));
+  Future<void> getAllMensagens(idRemetente, idDestinatario, firstLoading) async {
+    setLoading(true);
     Response response;
     Dio dio = Dio();
     try {
@@ -38,11 +50,18 @@ abstract class ConversaStoreBase with Store {
       );
       ObservableList<MensagemModel> listPlace = ObservableList<MensagemModel>();
       List<MensagemModel> mensagens = (response.data as List).map((item) { return MensagemModel.fromJson(item); }).toList();
-
-      for(MensagemModel obj in mensagens) {
-        listPlace.add(obj);
+      if (firstLoading) {
+        for(MensagemModel obj in mensagens) {
+          listPlace.add(obj);
+        }
+        setMensagensList(listPlace);
+      } else {
+        this.mensagens.clear();
+        for(MensagemModel obj in mensagens) {
+          addMensagem(obj);
+        }
       }
-      setMensagensList(listPlace);
+      setLoading(false);
     } catch (e) {
       print(e);
     }

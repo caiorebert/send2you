@@ -11,47 +11,40 @@ class ItemListUsers {
 
   late Widget widget =
   Container(
+    width: double.infinity,
     alignment: Alignment.topRight,
-    decoration: BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(5),
-      boxShadow: [
-        BoxShadow(
-          color: Colors.grey.withOpacity(0.4),
-          spreadRadius: 2,
-          blurRadius: 1,
-          offset: const Offset(0, 2)
-        )
-      ]
+    decoration: const BoxDecoration(
+      border: Border(bottom: BorderSide(color: Colors.deepPurple, width: 1)),
     ),
-    margin: const EdgeInsets.fromLTRB(10, 5, 10, 0),
-    padding: const EdgeInsets.fromLTRB(0, 5, 0, 5),
+    margin: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+    //padding: const EdgeInsets.fromLTRB(0, 5, 0, 5),
     height: 60,
     child: Row(
       children: [
         Container(
           height: 60,
           decoration: const BoxDecoration(
-            border: Border(
-              right: BorderSide(width: 1, color: Colors.black12)
-            )
+              border: Border(
+                  right: BorderSide(width: 1, color: Colors.black12)
+              )
           ),
           padding: const EdgeInsets.all(5),
-          width: (MediaQuery.of(context).size.width * 0.20) - 20,
+          width: 60,
           child: Image.network(foto),
         ),
-        Container(
-          height: 50,
-          width: (MediaQuery.of(context).size.width * 0.70),
-          padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
-          alignment: Alignment.centerLeft,
-          child: Text(nome.toString().toLowerCase().replaceFirst(nome.toString()[0], nome.toString()[0].toUpperCase())),
+        Expanded(
+            child: Container(
+              height: 50,
+              width: double.infinity,
+              padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+              alignment: Alignment.centerLeft,
+              child:
+                Text(
+                  nome.toString().replaceFirst(nome.toString()[0], nome.toString()[0].toUpperCase()),
+                  style: const TextStyle(color: Colors.white),
+                ),
+            ),
         ),
-        Container(
-          height: 50,
-          width: (MediaQuery.of(context).size.width * 0.10),
-          child: Icon(Icons.circle, color: (logged != null && logged == true) ? Colors.green : Colors.red,),
-        )
       ],
     ),
   );
